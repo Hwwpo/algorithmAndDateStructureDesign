@@ -22,7 +22,7 @@ class Graph(Mesh):
     def draw_by_step(self):
         faces_portion = []
         for index in range(len(self.faces)):
-            faces_portion.append(self.faces[index])
+            faces_portion.append(self.faces[index].location)
             if index % FPS == 0:
                 self.add_face(faces_portion, edge_color='g')
                 faces_portion = []
@@ -36,13 +36,18 @@ class Graph(Mesh):
         self.ax.add_collection3d(collection)
 
     def draw_by_one_step(self):
-        self.add_face(self.faces, edge_color='g')
+        faces_location = [face.location for face in self.faces]
+        self.add_face(faces_location, edge_color='g')
 
     def draw_edge(self, point):
-        face_index = self.vertices_index[point]
-        # debugging
-        print(face_index)
-        faces = [self.faces[index] for index in face_index]
+        vertex = [i for i in self.vertices if i.id == point][0]
+        print(vertex)
+        faces = [face.location for face in vertex.related_face]
+        print(faces)
+        # face_index = self.vertices_index[point]
+        # # debugging
+        # print(face_index)
+        # faces = [self.faces[index] for index in face_index]
         self.add_face(faces, edge_color='r', alpha=1)
         pass
 

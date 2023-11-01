@@ -1,3 +1,7 @@
+from vertex import Vertex
+from face import Face
+
+
 class Mesh:
     def __init__(self, file_path):
         """
@@ -19,30 +23,39 @@ class Mesh:
             # 初始化数据
             self.vertices = []
             self.faces = []
-            self.faces_index = {face: [] for face in range(faces_count)}
-            self.vertices_index = {vertex: [] for vertex in range(vertices_count)}
+            # self.faces_index = {face: [] for face in range(faces_count)}
+            # self.vertices_index = {vertex: [] for vertex in range(vertices_count)}
 
             # 计算self.vertices
+            vertex_id = 0
             for line in lines[2:2 + vertices_count]:
-                vertex = list(map(float, line.split()))
-                self.vertices.append(vertex)
+                xyz = list(map(float, line.split()))
+                self.vertices.append(Vertex(vertex_id=vertex_id, xyz=xyz))
+                vertex_id += 1
             # 计算self.faces和self.faces_index
-            faces = []
+            # faces = []
+            face_id = 0
             for line in lines[2 + vertices_count:]:
                 index = list(map(int, line.split()))[1:]
-                faces.append(index)
+                # faces.append(index)
 
-            for index in faces:
-                location = faces.index(index)
-                face = []
-                for i in index:
-                    self.faces_index[location].append(i)
-                    face.append(self.vertices[i])
-                self.faces.append(face)
+
+            # for index in faces:
+                # location = faces.index(index)
+                face = [self.vertices[i] for i in index]
+                # face = []
+                # for i in index:
+                #     # self.faces_index[location].append(i)
+                #     face.append(self.vertices[i])
+                new_face = Face(face_id=face_id, location=[x.xyz for x in face], related_vertex=face)
+                self.faces.append(new_face)
+                for i in self.faces[face_id].related_vertex:
+                    self.vertices[i.id].related_face.append(new_face)
+                face_id += 1
             # 计算self.vertices_index
-            for i, face in enumerate(faces):
-                for vertex in face:
-                    self.vertices_index[vertex].append(i)
+            # for i, face in enumerate(faces):
+            #     for vertex in face:
+            #         self.vertices_index[vertex].append(i)
         # print(self.vertices_index)
 
 
