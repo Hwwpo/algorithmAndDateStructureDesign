@@ -12,12 +12,15 @@ def hold_on():
 
 class Graph(Mesh):
     def __init__(self):
-        super().__init__('Bunny.off')
+        super().__init__()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
+
+    def read_file(self, file_path):
+        super(Graph, self).read_file(file_path)
 
     def draw_by_step(self):
         faces_portion = []
@@ -40,9 +43,10 @@ class Graph(Mesh):
         self.add_face(faces_location, edge_color='g')
 
     def draw_edge(self, point):
-        vertex = [i for i in self.vertices if i.id == point][0]
+        print(self.vertices)
+        vertex = [i for i in self.vertices if i.vertex_id == point][0]
         print(vertex)
-        faces = [face.location for face in vertex.related_face]
+        faces = [face.location for face in vertex.related_faces]
         print(faces)
         # face_index = self.vertices_index[point]
         # # debugging
