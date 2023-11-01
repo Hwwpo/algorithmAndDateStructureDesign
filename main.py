@@ -2,9 +2,16 @@ from mesh import Mesh
 from graph import Graph, hold_on
 
 if __name__ == '__main__':
-    mesh = Mesh('Bunny.off')
-    # print(mesh.faces)
     graph = Graph()
+    graph.read_file('Bunny.off')
+    graph.find_first_neighbors(4000)
+    graph.find_second_neighbors(4000)
+    print(*graph.vertices[4000].get_first_neighbors(), sep="\n")
+    print("\n")
+    print(*graph.vertices[4000].get_second_neighbors(), sep="\n")
+
+    # print(mesh.faces)
+    # graph = Graph()
     graph.draw_by_one_step()
     # # graph.get_adjacent_point(0)
     # displayed_point = int(input(
