@@ -2,6 +2,7 @@ from mesh import Mesh
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
+FPS = 300
 
 
 # hold_on之后不允许进行图像的修改，
@@ -17,39 +18,58 @@ class Graph(Mesh):
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
-    # 顶点数据
-        # vertices = np.array(self.vertices)
-
-    # 面的顶点数据
-        # self.draw_by_step()
-
-        # plt.show()
 
     def draw_by_step(self):
         faces_portion = []
         for index in range(len(self.faces)):
             faces_portion.append(self.faces[index])
-            if index % 300 == 0:
+            if index % FPS == 0:
                 self.add_face(faces_portion, edge_color='g')
                 faces_portion = []
                 plt.pause(0.0001)
 
-    def add_face(self, faces,edge_color, face_color='b'):
+    def add_face(self, faces, edge_color, face_color='b', alpha=1):
         collection = Poly3DCollection(faces, linewidths=1)
         collection.set_edgecolor(edge_color)
         collection.set_facecolor(face_color)
+        collection.set_alpha(alpha=alpha)
         self.ax.add_collection3d(collection)
 
-    def draw(self):
+    def draw_by_one_step(self):
         self.add_face(self.faces, edge_color='g')
 
     def draw_edge(self, point):
         face_index = self.vertices_index[point]
-        faces = []
-        for index in face_index:
-            faces.append(self.faces[index])
-        self.add_face(faces, edge_color='b', face_color='r')
+        # debugging
+        print(face_index)
+        faces = [self.faces[index] for index in face_index]
+        self.add_face(faces, edge_color='r', alpha=1)
         pass
+
+    def get_adjacent_point(self, point):
+        face_index = self.vertices_index[point]
+        vertices = [self.faces_index[index] for index in face_index]
+        vertices = list(map(lambda x: x.pop(x.index(point)), vertices))
+
+        print(vertices)
+
+    def add_comment(self, point, text='·', color='r'):
+        assistant_points = [
+            [x, y, z]
+            for x in range(2)
+            for y in range(2)
+            for z in range(2)
+        ]
+        location = self.vertices[point]
+        px, py, pz = location
+        print(location)
+        # self.ax.scatter(location[0], location[1], location[2])
+        self.ax.text(px, py, pz, text, color=color)
+        for assistant_point in assistant_points:
+            xs, ys, zs = list(zip(assistant_point, location))
+            print(xs)
+            self.ax.plot(xs, ys, zs, color='r')
+        # self.ax.text(location[0], location[1], location[2], text,color)
         # self.ax.plot([beg[0], end[0]], [beg[1], end[1]], [beg[2], end[2]], color='r', linewidth=10.0)
 
         # plt.show()
@@ -69,4 +89,3 @@ class Graph(Mesh):
     #         colors[i] = 'r'  # 更改特定边的颜色为红色
     #         collection.set_edgecolor(colors)
     #         plt.pause(0.01)  # 显示0.5秒的间隔
-
