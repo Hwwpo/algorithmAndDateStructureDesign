@@ -43,7 +43,6 @@ class Graph(Mesh):
         self.add_face(faces_location, edge_color='g')
 
     def draw_edge(self, point):
-        print(self.vertices)
         vertex = [i for i in self.vertices if i.vertex_id == point][0]
         print(vertex)
         faces = [face.location for face in vertex.related_faces]
@@ -54,6 +53,11 @@ class Graph(Mesh):
         # faces = [self.faces[index] for index in face_index]
         self.add_face(faces, edge_color='r', alpha=1)
         pass
+
+    def draw_neighbors(self, point):
+        first_neighbors = self.vertices[point].get_first_neighbors()
+        for neighbor in first_neighbors:
+            self.draw_edge(neighbor.get_vertex_id())
 
     def get_adjacent_point(self, point):
         face_index = self.vertices_index[point]
@@ -69,7 +73,7 @@ class Graph(Mesh):
             for y in range(2)
             for z in range(2)
         ]
-        location = self.vertices[point]
+        location = self.vertices[point].axis
         px, py, pz = location
         print(location)
         # self.ax.scatter(location[0], location[1], location[2])

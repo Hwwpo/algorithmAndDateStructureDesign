@@ -8,7 +8,6 @@ class Face:
         self.related_vertices = related_vertices
         self.location = []
         for i in range(self.n):
-            print(i, self.related_vertices)
             self.location.append(self.related_vertices[i].axis)
 
     # 可以删了（？

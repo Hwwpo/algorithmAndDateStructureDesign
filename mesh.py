@@ -65,14 +65,13 @@ class Mesh:
         # print(self.vertices_index)
 
     def find_first_neighbors(self, vertex_id):
-        for face in self.faces:
-            if vertex_id in face.get_vertices_ids():
-                for i in range(face.n):
-                    curr_vertex = face.related_vertices[i]
-                    next_vertex = face.related_vertices[(i + 1) % face.n]
-                    last_vertex = face.related_vertices[(i + face.n - 1) % face.n]
-                    curr_vertex.add_first_neighbor(next_vertex)
-                    curr_vertex.add_first_neighbor(last_vertex)
+        for face in self.vertices[vertex_id].related_faces:
+            for i in range(face.n):
+                curr_vertex = face.related_vertices[i]
+                next_vertex = face.related_vertices[(i + 1) % face.n]
+                last_vertex = face.related_vertices[(i + face.n - 1) % face.n]
+                curr_vertex.add_first_neighbor(next_vertex)
+                curr_vertex.add_first_neighbor(last_vertex)
 
     def find_all_first_neighbors(self):
         for face in self.faces:
@@ -95,6 +94,4 @@ class Mesh:
             neighbors.extend(first_neighbor.get_first_neighbors())
         for neighbor in neighbors:
             if neighbor not in first_neighbors:
-                print(neighbors)
                 self.vertices[vertex_id].add_second_neighbor(neighbor)
-        print(self.vertices[vertex_id].get_second_neighbors())
