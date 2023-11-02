@@ -1,4 +1,12 @@
+import time
+
+import networkx as nx
+from itertools import combinations
+
+from matplotlib import pyplot as plt
+
 from vertex import Vertex
+from edge import Edge
 from face import Face
 
 
@@ -17,6 +25,19 @@ class Mesh:
         self.vertices = []
         self.vertices_count = 0
         self.faces_count = 0
+        self.edges = []
+        self.net = nx.Graph()
+
+    def net_init(self):
+        frame = [edge.nx_format for edge in self.edges]
+        print(len(frame))
+        self.net.add_weighted_edges_from(frame)
+        # debugging
+        minWPath = nx.dijkstra_path(self.net, source=0, target=10)
+        lMinWPath = nx.dijkstra_path_length(self.net, source=0, target=10)
+        print(minWPath)
+        print(lMinWPath)
+        pass
 
     def read_file(self, file_path):
         # 打开off文件
@@ -26,43 +47,22 @@ class Mesh:
             vertices_count, faces_count, lines_count = map(int, lines[1].split())
             self.vertices_count = vertices_count
             self.faces_count = faces_count
-            # self.faces_index = {face: [] for face in range(faces_count)}
-            # self.vertices_index = {vertex: [] for vertex in range(vertices_count)}
-
             # 计算self.vertices
             vertex_id = 0
             for line in lines[2:2 + vertices_count]:
                 new_vertex = Vertex(vertex_id)
                 new_vertex.set_axis(list(map(float, line.split())))
                 self.vertices.append(new_vertex)
-                # print(f'[{self.vertices[vertex_id].x}, {self.vertices[vertex_id].y}, {self.vertices[vertex_id].z}]')
                 vertex_id += 1
-            # 计算self.faces和self.faces_index
-            # faces = []
             face_id = 0
             for line in lines[2 + vertices_count:]:
                 index = list(map(int, line.split()))
-                # faces.append(index)
-
-                # for index in faces:
-                # location = faces.index(index)
                 related_vertices = [self.vertices[i] for i in index[1:]]
-                print(index[0], face_id, related_vertices)
-                #print(type(related_vertices))
                 new_face = Face(index[0], face_id, related_vertices)
                 self.faces.append(new_face)
-                # face = []
-                # for i in index:
-                #     # self.faces_index[location].append(i)
-                #     face.append(self.vertices[i])
                 for vertex in self.faces[face_id].related_vertices:
                     self.vertices[vertex.vertex_id].related_faces.append(new_face)
                 face_id += 1
-            # 计算self.vertices_index
-            # for i, face in enumerate(faces):
-            #     for vertex in face:
-            #         self.vertices_index[vertex].append(i)
-        # print(self.vertices_index)
 
     def find_first_neighbors(self, vertex_id):
         for face in self.vertices[vertex_id].related_faces:
@@ -95,3 +95,26 @@ class Mesh:
         for neighbor in neighbors:
             if neighbor not in first_neighbors:
                 self.vertices[vertex_id].add_second_neighbor(neighbor)
+
+    def get_vertex(self, vertex_id):
+        return [i for i in self.vertices if i.vertex_id == vertex_id][0]
+
+    def edges_init(self):
+        dictionary = {}
+        for face in self.faces:
+            vertex_ids = [vertex.vertex_id for vertex in face.related_vertices]
+            combines = list(combinations(vertex_ids, 2))
+            for combine in combines:
+                vertex1 = self.get_vertex(combine[0])
+                vertex2 = self.get_vertex(combine[1])
+                new_edge = Edge((vertex1, vertex2))
+                vertices = new_edge.vertices
+                try:
+                    a = dictionary[vertices]
+                    continue
+                except:
+                    dictionary[vertices] = True
+                    dictionary[vertices[::-1]] = True
+                    self.edges.append(new_edge)
+                # print(self.edges)
+                # time.sleep(10)

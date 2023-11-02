@@ -21,6 +21,8 @@ class Graph(Mesh):
 
     def read_file(self, file_path):
         super(Graph, self).read_file(file_path)
+        self.edges_init()
+        self.net_init()
 
     def draw_by_step(self):
         faces_portion = []
@@ -42,8 +44,8 @@ class Graph(Mesh):
         faces_location = [face.location for face in self.faces]
         self.add_face(faces_location, edge_color='g')
 
-    def draw_edge(self, point):
-        vertex = [i for i in self.vertices if i.vertex_id == point][0]
+    def draw_edge(self, point, color='r'):
+        vertex = self.get_vertex(vertex_id=point)
         print(vertex)
         faces = [face.location for face in vertex.related_faces]
         print(faces)
@@ -51,7 +53,7 @@ class Graph(Mesh):
         # # debugging
         # print(face_index)
         # faces = [self.faces[index] for index in face_index]
-        self.add_face(faces, edge_color='r', alpha=1)
+        self.add_face(faces, edge_color=color, alpha=1, face_color='g')
         pass
 
     def draw_neighbors(self, point):
