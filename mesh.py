@@ -30,14 +30,14 @@ class Mesh:
 
     def net_init(self):
         frame = [edge.nx_format for edge in self.edges]
-        print(len(frame))
+        # print(len(frame))
         self.net.add_weighted_edges_from(frame)
+
+    def dijkstra(self, beg: int, end: int):
         # debugging
-        minWPath = nx.dijkstra_path(self.net, source=0, target=10)
-        lMinWPath = nx.dijkstra_path_length(self.net, source=0, target=10)
-        print(minWPath)
-        print(lMinWPath)
-        pass
+        min_path = nx.dijkstra_path(self.net, source=beg, target=end)
+        len_min_path = nx.dijkstra_path_length(self.net, source=beg, target=end)
+        return min_path, len_min_path
 
     def read_file(self, file_path):
         # 打开off文件

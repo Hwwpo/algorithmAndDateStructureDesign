@@ -3,8 +3,8 @@ from collections import deque
 from mesh import Mesh
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import numpy as np
-FPS = 500
+from vertex import Vertex
+FPS = 300
 AXIS_SHOW = 'off'
 
 
@@ -28,6 +28,7 @@ class Graph(Mesh):
         super(Graph, self).read_file(file_path)
         self.edges_init()
         self.net_init()
+        self.find_all_first_neighbors()
 
     def draw_by_steps(self, faces):
         faces_portion = []
@@ -37,34 +38,38 @@ class Graph(Mesh):
                 self.add_face(faces_portion, edge_color='g')
                 faces_portion = []
                 plt.pause(0.0001)
+        self.add_face(faces_portion, edge_color='g')
 
     def draw(self, vertices):
         faces = []
         appended = {}
         for vertex in vertices:
-            related_face = [face for face in vertex.related_faces]
+            related_face = vertex.related_faces
             for face in related_face:
                 try:
-                    appended[face]
-                    continue
+                    appended[face.face_id]
                 except:
                     faces.append(face)
-                    appended[face] = True
+                    appended[face.face_id] = True
         # print(len(faces))
+        # faces = list(set(faces))
+        print(len(faces))
         self.draw_by_steps(faces)
 
-    def add_face(self, faces, edge_color, face_color='b', alpha=1):
+    def add_face(self, faces, edge_color, face_color='b', alpha=1, line_width=0.5, z_order=1):
         collection = Poly3DCollection(faces, linewidths=1)
         collection.set_edgecolor(edge_color)
         collection.set_facecolor(face_color)
+        collection.set_linewidth(line_width)
         collection.set_alpha(alpha=alpha)
+        collection.set_zorder(z_order)
         self.ax.add_collection3d(collection)
 
     def draw_by_one_step(self):
         faces_location = [face.location for face in self.faces]
         self.add_face(faces_location, edge_color='g')
 
-    def draw_edge(self, point, color='r'):
+    def draw_adjacent_face(self, point, color='r', z_order=1):
         vertex = self.get_vertex(vertex_id=point)
         print(vertex)
         faces = [face.location for face in vertex.related_faces]
@@ -73,20 +78,27 @@ class Graph(Mesh):
         # # debugging
         # print(face_index)
         # faces = [self.faces[index] for index in face_index]
-        self.add_face(faces, edge_color=color, alpha=1, face_color='g')
+        self.add_face(faces, edge_color=color, alpha=1, face_color='g', z_order=z_order)
         pass
 
-    def draw_neighbors(self, point):
-        first_neighbors = self.vertices[point].get_first_neighbors()
-        for neighbor in first_neighbors:
-            self.draw_edge(neighbor.get_vertex_id())
+    def draw_neighbors(self, vertex_id):
+        vertex = self.vertices[vertex_id]
+        # self.highlight_point(vertex_id, color='w')
+        self.find_second_neighbors(vertex_id)
+        for first_neighbor in vertex.get_first_neighbors():
+            self.draw_edge(beg=vertex, end=first_neighbor, color='r')
+            for second_neighbor in first_neighbor.get_first_neighbors():
+                if second_neighbor in vertex.get_second_neighbors():
+                    self.draw_edge(beg=first_neighbor, end=second_neighbor, color='y')
+        # print(vertex)
+        # for neighbor in first_neighbors:
+        #     self.draw_adjacent_face(neighbor.get_vertex_id(), z_order=10)
 
-    def get_adjacent_point(self, point):
-        face_index = self.vertices_index[point]
-        vertices = [self.faces_index[index] for index in face_index]
-        vertices = list(map(lambda x: x.pop(x.index(point)), vertices))
-
-        print(vertices)
+    def highlight_point(self, vertex_id: int, color: str):
+        vertex = self.vertices[vertex_id]
+        xs, ys, zs = vertex.axis
+        print(xs, ys, zs)
+        self.ax.scatter(xs, ys, zs, color=color, zorder=11)
 
     def add_comment(self, point, text='·', color='r'):
         assistant_points = [
@@ -103,27 +115,16 @@ class Graph(Mesh):
         for assistant_point in assistant_points:
             xs, ys, zs = list(zip(assistant_point, location))
             print(xs)
-            self.ax.plot(xs, ys, zs, color='r')
-        # self.ax.text(location[0], location[1], location[2], text,color)
-        # self.ax.plot([beg[0], end[0]], [beg[1], end[1]], [beg[2], end[2]], color='r', linewidth=10.0)
+            self.ax.plot(xs, ys, zs, color='r', zorder=10)
 
-        # plt.show()
-        # colors = ['w'] * len(faces)
-        # collection.set_edgecolor(colors)
-        # collection.set_facecolor('white')
+    def draw_edge(self, edge, color='r', z_order=10):
+        beg, end = edge.vertices
+        xs, ys, zs = list(zip(beg.axis, end.axis))
+        self.ax.plot(xs, ys, zs, color=color, zorder=z_order)
 
-        # def update(frame):
-        #     colors[frame] = 'r'
-        #     collection.set_edgecolor(colors)
-        #     return collection,
-
-        # anim = FuncAnimation(self.fig, update, frames=len(faces), blit=False, interval=100)
-        # anim.save("a.gif")
-    # 改变边的颜色并显示动画
-    #     for i in range(len(faces)):  # 设置所有边为黑色
-    #         colors[i] = 'r'  # 更改特定边的颜色为红色
-    #         collection.set_edgecolor(colors)
-    #         plt.pause(0.01)  # 显示0.5秒的间隔
+    def draw_edge(self, beg: Vertex, end: Vertex, color='r', z_order=10):
+        xs, ys, zs = list(zip(beg.axis, end.axis))
+        self.ax.plot(xs, ys, zs, color=color, zorder=z_order)
 
     def iterative_dfs(self, start_id):
         # self.find_all_first_neighbors()

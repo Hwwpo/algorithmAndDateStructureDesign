@@ -4,8 +4,19 @@ from graph import Graph, hold_on
 if __name__ == '__main__':
     graph = Graph()
     graph.read_file('Bunny.off')
-    bfs_sequence = graph.bfs(4000)
-    graph.draw(bfs_sequence)
+    # dfs_sequence = graph.bfs(4000)
+    # bfs_sequence = graph.bfs(0)
+    # graph.draw(dfs_sequence)
+    # graph.draw_by_one_step()
+    # graph.add_comment(0)
+    # graph.draw_edge(graph.edges[0])
+    # graph.draw_by_one_step()
+    # graph.draw_neighbors(0)
+
+    # path, length = graph.dijkstra(0, 10)
+    # print(path, length)
+    graph.draw(graph.bfs(0))
+    # graph.draw(bfs_sequence)
     # for vertex in dfs_sequence:
     #     graph.draw_edge(vertex.get_vertex_id())
 
