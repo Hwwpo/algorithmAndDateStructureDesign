@@ -5,8 +5,9 @@ if __name__ == '__main__':
     graph = Graph()
     graph.read_file('Bunny.off')
     dfs_sequence = graph.iterative_dfs(4000)
-    for vertex in dfs_sequence:
-        graph.draw_edge(vertex.get_vertex_id())
+    graph.draw(dfs_sequence)
+    # for vertex in dfs_sequence:
+    #     graph.draw_edge(vertex.get_vertex_id())
 
     # graph.find_first_neighbors(0)
     # graph.find_second_neighbors(4000)

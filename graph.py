@@ -2,7 +2,8 @@ from mesh import Mesh
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
-FPS = 300
+FPS = 100
+AXIS_SHOW = 'off'
 
 
 # hold_on之后不允许进行图像的修改，
@@ -18,20 +19,36 @@ class Graph(Mesh):
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
+        plt.axis(AXIS_SHOW)
 
     def read_file(self, file_path):
         super(Graph, self).read_file(file_path)
         self.edges_init()
         self.net_init()
 
-    def draw_by_step(self):
+    def draw_by_steps(self, faces):
         faces_portion = []
-        for index in range(len(self.faces)):
-            faces_portion.append(self.faces[index].location)
+        for index in range(len(faces)):
+            faces_portion.append(faces[index].location)
             if index % FPS == 0:
                 self.add_face(faces_portion, edge_color='g')
                 faces_portion = []
                 plt.pause(0.0001)
+
+    def draw(self, vertices):
+        faces = []
+        appended = {}
+        for vertex in vertices:
+            related_face = [face for face in vertex.related_faces]
+            for face in related_face:
+                try:
+                    appended[face]
+                    continue
+                except:
+                    faces.append(face)
+                    appended[face] = True
+        # print(len(faces))
+        self.draw_by_steps(faces)
 
     def add_face(self, faces, edge_color, face_color='b', alpha=1):
         collection = Poly3DCollection(faces, linewidths=1)
