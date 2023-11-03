@@ -4,8 +4,8 @@ from graph import Graph, hold_on
 if __name__ == '__main__':
     graph = Graph()
     graph.read_file('Bunny.off')
-    dfs_sequence = graph.iterative_dfs(4000)
-    graph.draw(dfs_sequence)
+    bfs_sequence = graph.bfs(4000)
+    graph.draw(bfs_sequence)
     # for vertex in dfs_sequence:
     #     graph.draw_edge(vertex.get_vertex_id())
 

@@ -68,10 +68,11 @@ class Mesh:
         for face in self.vertices[vertex_id].related_faces:
             for i in range(face.n):
                 curr_vertex = face.related_vertices[i]
-                next_vertex = face.related_vertices[(i + 1) % face.n]
-                last_vertex = face.related_vertices[(i + face.n - 1) % face.n]
-                curr_vertex.add_first_neighbor(next_vertex)
-                curr_vertex.add_first_neighbor(last_vertex)
+                if curr_vertex.get_vertex_id() == vertex_id:
+                    next_vertex = face.related_vertices[(i + 1) % face.n]
+                    last_vertex = face.related_vertices[(i + face.n - 1) % face.n]
+                    curr_vertex.add_first_neighbor(next_vertex)
+                    curr_vertex.add_first_neighbor(last_vertex)
 
     def find_all_first_neighbors(self):
         for face in self.faces:

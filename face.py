@@ -17,7 +17,7 @@ class Face:
     def get_vertices_ids(self):
         return [vertex.vertex_id for vertex in self.related_vertices]
 
-    def display(self):
-        print(f"Face's id: {self.face_id}\n"
-              f"Face's location: {self.location}\n"
-              f"Face's related_vertices: {self.related_vertices}")
+    def __str__(self):
+        return f"Face's id: {self.face_id}\n" \
+              f"Face's location: {self.location}\n" \
+              f"Face's related_vertices: {self.related_vertices}"

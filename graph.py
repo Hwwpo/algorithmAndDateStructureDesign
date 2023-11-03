@@ -1,8 +1,10 @@
+from collections import deque
+
 from mesh import Mesh
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
-FPS = 100
+FPS = 500
 AXIS_SHOW = 'off'
 
 
@@ -20,6 +22,7 @@ class Graph(Mesh):
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
         plt.axis(AXIS_SHOW)
+        self.ax.view_init(elev=-87, azim=-95)
 
     def read_file(self, file_path):
         super(Graph, self).read_file(file_path)
@@ -123,7 +126,7 @@ class Graph(Mesh):
     #         plt.pause(0.01)  # 显示0.5秒的间隔
 
     def iterative_dfs(self, start_id):
-        self.find_all_first_neighbors()
+        # self.find_all_first_neighbors()
         visited = [False] * self.vertices_count
         stack = []
         dfs_sequence = []
@@ -134,6 +137,8 @@ class Graph(Mesh):
             node = stack.pop()
             node_id = node.get_vertex_id()
 
+            if not node.get_first_neighbors():
+                self.find_first_neighbors(node_id)
             if not visited[node_id]:
                 visited[node_id] = True
                 dfs_sequence.append(node)
@@ -143,3 +148,26 @@ class Graph(Mesh):
                     stack.append(neighbor)
 
         return dfs_sequence
+
+    def bfs(self, start_id):
+        visited = [False] * self.vertices_count
+        queue = deque()
+        bfs_sequence = []
+
+        queue.append(self.get_vertex(start_id))
+        visited[start_id] = True
+
+        while queue:
+            node = queue.popleft()
+            bfs_sequence.append(node)
+
+            if not node.get_first_neighbors():
+                self.find_first_neighbors(node.get_vertex_id())
+
+            for neighbor in node.get_first_neighbors():
+                neighbor_id = neighbor.get_vertex_id()
+                if not visited[neighbor_id]:
+                    queue.append(neighbor)
+                    visited[neighbor_id] = True
+
+        return bfs_sequence
