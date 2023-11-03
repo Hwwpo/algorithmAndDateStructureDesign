@@ -97,7 +97,7 @@ class Mesh:
                 self.vertices[vertex_id].add_second_neighbor(neighbor)
 
     def get_vertex(self, vertex_id):
-        return [i for i in self.vertices if i.vertex_id == vertex_id][0]
+        return self.vertices[vertex_id]
 
     def edges_init(self):
         dictionary = {}
@@ -118,3 +118,4 @@ class Mesh:
                     self.edges.append(new_edge)
                 # print(self.edges)
                 # time.sleep(10)
+

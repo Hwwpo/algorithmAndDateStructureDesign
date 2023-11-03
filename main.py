@@ -4,6 +4,9 @@ from graph import Graph, hold_on
 if __name__ == '__main__':
     graph = Graph()
     graph.read_file('Bunny.off')
+    dfs_sequence = graph.iterative_dfs(4000)
+    for vertex in dfs_sequence:
+        graph.draw_edge(vertex.get_vertex_id())
 
     # graph.find_first_neighbors(0)
     # graph.find_second_neighbors(4000)
@@ -22,5 +25,5 @@ if __name__ == '__main__':
     # graph.draw_edge(0, 'w')
     # graph.add_comment(0)
     # graph.add_comment(displayed_point)
-    # hold_on()
+    hold_on()
     pass

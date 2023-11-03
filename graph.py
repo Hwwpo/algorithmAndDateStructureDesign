@@ -104,3 +104,25 @@ class Graph(Mesh):
     #         colors[i] = 'r'  # 更改特定边的颜色为红色
     #         collection.set_edgecolor(colors)
     #         plt.pause(0.01)  # 显示0.5秒的间隔
+
+    def iterative_dfs(self, start_id):
+        self.find_all_first_neighbors()
+        visited = [False] * self.vertices_count
+        stack = []
+        dfs_sequence = []
+
+        stack.append(self.get_vertex(start_id))
+
+        while stack:
+            node = stack.pop()
+            node_id = node.get_vertex_id()
+
+            if not visited[node_id]:
+                visited[node_id] = True
+                dfs_sequence.append(node)
+
+            for neighbor in node.get_first_neighbors():
+                if not visited[neighbor.get_vertex_id()]:
+                    stack.append(neighbor)
+
+        return dfs_sequence
