@@ -19,7 +19,6 @@ class Mesh:
         self.faces: 返回一个数组，存储着每个面包含的点的坐标，e.g. self.faces[0] = [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3]]\n
         self.faces_index: 返回一个字典，存储着每个面包含的点的索引，e.g. self.faces_index[1] = [123, 234,345]\n
         self.vertices_index: 返回一个字典，存储着每个点被在哪些面之中，e.g. self.vertices_index[0] = [1324, 42345, 234523, 123]\n
-        :param file_path: your off file path.
         """
         self.faces = []
         self.vertices = []
@@ -28,7 +27,7 @@ class Mesh:
         self.edges = []
         self.net = nx.Graph()
 
-    def net_init(self):
+    def __net_init__(self):
         frame = [edge.nx_format for edge in self.edges]
         # print(len(frame))
         self.net.add_weighted_edges_from(frame)
@@ -100,7 +99,7 @@ class Mesh:
     def get_vertex(self, vertex_id):
         return self.vertices[vertex_id]
 
-    def edges_init(self):
+    def __edges_init__(self):
         dictionary = {}
         for face in self.faces:
             vertex_ids = [vertex.vertex_id for vertex in face.related_vertices]
@@ -108,14 +107,14 @@ class Mesh:
             for combine in combines:
                 vertex1 = self.get_vertex(combine[0])
                 vertex2 = self.get_vertex(combine[1])
-                new_edge = Edge((vertex1, vertex2))
-                vertices = new_edge.vertices
+                vertices = (vertex1, vertex2)
                 try:
                     a = dictionary[vertices]
                     continue
                 except:
                     dictionary[vertices] = True
                     dictionary[vertices[::-1]] = True
+                    new_edge = Edge((vertex1, vertex2))
                     self.edges.append(new_edge)
                 # print(self.edges)
                 # time.sleep(10)

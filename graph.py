@@ -26,8 +26,8 @@ class Graph(Mesh):
 
     def read_file(self, file_path):
         super(Graph, self).read_file(file_path)
-        self.edges_init()
-        self.net_init()
+        self.__edges_init__()
+        self.__net_init__()
         self.find_all_first_neighbors()
 
     def draw_by_steps(self, faces):
