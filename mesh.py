@@ -1,10 +1,7 @@
-import time
+from typing import Tuple, Any
 
 import networkx as nx
 from itertools import combinations
-
-from matplotlib import pyplot as plt
-
 from vertex import Vertex
 from edge import Edge
 from face import Face
@@ -15,24 +12,34 @@ class Mesh:
         """
         self.vertices_count：该图形顶点数量\n
         self.faces_count：该图形面数量\n
-        self.vertices: 返回一个数组，存储着每个点的坐标，e.g. self.vertices[0] = [0, 1, 1]\n
-        self.faces: 返回一个数组，存储着每个面包含的点的坐标，e.g. self.faces[0] = [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3]]\n
-        self.faces_index: 返回一个字典，存储着每个面包含的点的索引，e.g. self.faces_index[1] = [123, 234,345]\n
-        self.vertices_index: 返回一个字典，存储着每个点被在哪些面之中，e.g. self.vertices_index[0] = [1324, 42345, 234523, 123]\n
+        self.vertices: 返回vertex数组，为顶点集合\n
+        self.faces: 返回face数组，为面集合\n
+        self.edges: 返回edge数组，为边集合\n
+        self.net: 存储图结构
         """
-        self.faces = []
-        self.vertices = []
         self.vertices_count = 0
         self.faces_count = 0
+        self.faces = []
+        self.vertices = []
         self.edges = []
         self.net = nx.Graph()
 
     def __net_init__(self):
+        """
+        图网络的初始化函数
+        :return: None
+        """
         frame = [edge.nx_format for edge in self.edges]
         # print(len(frame))
         self.net.add_weighted_edges_from(frame)
 
-    def dijkstra(self, start: int, end: int):
+    def dijkstra(self, start: int, end: int) -> tuple[Any, Any]:
+        """
+        Dijkstra求最短路
+        :param start: 开始节点的vertex_id
+        :param end: 结束节点的vertex_id
+        :return: 返回最短距离和最短路径
+        """
         # debugging
         # min_path = nx.dijkstra_path(self.net, source=beg, target=end)
         # len_min_path = nx.dijkstra_path_length(self.net, source=beg, target=end)
@@ -75,7 +82,12 @@ class Mesh:
         # 最后，我们返回到目标节点的最短距离和最短路径
         return shortest_distances[end], shortest_paths[end]
 
-    def read_file(self, file_path):
+    def read_file(self, file_path: str):
+        """
+        读文件，初始化attributions
+        :param file_path: 文件路径
+        :return: None
+        """
         # 打开off文件
         with open(file_path, 'r') as file:
             lines = file.readlines()
@@ -137,20 +149,30 @@ class Mesh:
         return self.vertices[vertex_id]
 
     def __edges_init__(self):
+        """
+        边初始化函数
+        :return: None
+        """
+        # 使用字典判重
         dictionary = {}
+        # 遍历每一个面
         for face in self.faces:
             vertex_ids = [vertex.vertex_id for vertex in face.related_vertices]
+            # 将每个面的点两两排列组合
             combines = list(combinations(vertex_ids, 2))
+            # 遍历组合
             for combine in combines:
                 vertex1 = self.get_vertex(combine[0])
                 vertex2 = self.get_vertex(combine[1])
                 vertices = (vertex1, vertex2)
+                # 判重，(1, 2)和(2, 1)属于同一条边，并且多个面可能共用一条边
                 try:
                     a = dictionary[vertices]
                     continue
                 except:
                     dictionary[vertices] = True
                     dictionary[vertices[::-1]] = True
+                    # 无重复则添加新边
                     new_edge = Edge((vertex1, vertex2))
                     self.edges.append(new_edge)
                 # print(self.edges)
