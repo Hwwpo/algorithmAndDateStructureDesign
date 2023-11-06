@@ -32,11 +32,48 @@ class Mesh:
         # print(len(frame))
         self.net.add_weighted_edges_from(frame)
 
-    def dijkstra(self, beg: int, end: int):
+    def dijkstra(self, start: int, end: int):
         # debugging
-        min_path = nx.dijkstra_path(self.net, source=beg, target=end)
-        len_min_path = nx.dijkstra_path_length(self.net, source=beg, target=end)
-        return min_path, len_min_path
+        # min_path = nx.dijkstra_path(self.net, source=beg, target=end)
+        # len_min_path = nx.dijkstra_path_length(self.net, source=beg, target=end)
+        # 创建一个字典来保存每个节点的最短距离
+        shortest_distances = {node: float('infinity') for node in self.net.nodes}
+        shortest_distances[start] = 0
+
+        # 创建一个字典来保存最短路径
+        shortest_paths = {node: [] for node in self.net.nodes}
+        shortest_paths[start] = [start]
+
+        # 创建一个集合来保存已经访问过的节点
+        visited_nodes = set()
+
+        while True:
+            # 从未访问过的节点中找到距离最短的节点
+            min_distance_node = None
+            for node in self.net.nodes:
+                if node not in visited_nodes:
+                    if min_distance_node is None:
+                        min_distance_node = node
+                    elif shortest_distances[node] < shortest_distances[min_distance_node]:
+                        min_distance_node = node
+
+            # 如果我们没有找到一个新的节点，那么我们已经完成了所有的访问
+            if min_distance_node is None:
+                break
+
+            # 否则，我们将这个节点添加到已访问过的节点的集合中
+            visited_nodes.add(min_distance_node)
+
+            # 然后，我们更新所有相邻节点的最短距离
+            for neighbour, properties in self.net[min_distance_node].items():
+                distance = properties['weight']
+                new_distance = shortest_distances[min_distance_node] + distance
+                if new_distance < shortest_distances[neighbour]:
+                    shortest_distances[neighbour] = new_distance
+                    shortest_paths[neighbour] = shortest_paths[min_distance_node] + [neighbour]
+
+        # 最后，我们返回到目标节点的最短距离和最短路径
+        return shortest_distances[end], shortest_paths[end]
 
     def read_file(self, file_path):
         # 打开off文件
