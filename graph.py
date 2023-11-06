@@ -101,22 +101,14 @@ class Graph(Mesh):
         print(xs, ys, zs)
         self.ax.scatter(xs, ys, zs, color=color, zorder=11)
 
-    def add_comment(self, point, text='·', color='r'):
-        assistant_points = [
-            [x, y, z]
-            for x in range(2)
-            for y in range(2)
-            for z in range(2)
-        ]
-        location = self.vertices[point].axis
+    def mark_point(self, vertex_id, text=None, color='y'):
+        if not text:
+            text = str(vertex_id)
+        location = self.get_vertex(vertex_id).axis
         px, py, pz = location
         print(location)
         # self.ax.scatter(location[0], location[1], location[2])
-        self.ax.text(px, py, pz, text, color=color)
-        for assistant_point in assistant_points:
-            xs, ys, zs = list(zip(assistant_point, location))
-            print(xs)
-            self.ax.plot(xs, ys, zs, color='r', zorder=10)
+        self.ax.text(px, py, pz, text, color=color, zorder=10)
 
     def draw_edge(self, edge, color='r', z_order=10):
         beg, end = edge.vertices
@@ -173,3 +165,11 @@ class Graph(Mesh):
                     visited[neighbor_id] = True
 
         return bfs_sequence
+
+    def dijkstra_draw(self, path: list):
+        self.draw_by_one_step()
+        for index in range(len(path) - 1):
+            print(f"beg:{path[index]}, end:{path[index + 1]}")
+            self.draw_edge(beg=self.get_vertex(path[index]), end=self.get_vertex(path[index + 1]))
+        self.mark_point(path[0], 'beg')
+        self.mark_point(path[-1], 'end')
