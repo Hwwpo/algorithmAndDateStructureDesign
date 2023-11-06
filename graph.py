@@ -90,6 +90,7 @@ class Graph(Mesh):
             for second_neighbor in first_neighbor.get_first_neighbors():
                 if second_neighbor in vertex.get_second_neighbors():
                     self.draw_edge(beg=first_neighbor, end=second_neighbor, color='y')
+        self.draw_by_one_step()
         # print(vertex)
         # for neighbor in first_neighbors:
         #     self.draw_adjacent_face(neighbor.get_vertex_id(), z_order=10)
