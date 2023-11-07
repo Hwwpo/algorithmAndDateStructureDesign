@@ -1,11 +1,26 @@
+import sys
+
 from mesh import Mesh
 from graph import Graph, hold_on
+from mainwindow import MainWindow
+from PyQt5.QtWidgets import QApplication
 
 if __name__ == '__main__':
-    graph = Graph()
-    graph.read_file('Bunny.off')
-    # dfs_sequence = graph.bfs(4000)
-    # bfs_sequence = graph.bfs(0)
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
+    # graph = Graph()
+    # graph.read_file('Bunny.off')
+    # # graph.draw_neighbors(400)
+    # # graph.draw_by_one_step()
+    # # dfs_sequence = graph.bfs(4000)
+    # # bfs_sequence = graph.bfs(0)
+    # # graph.draw_neighbors(0)
+    # _, path = graph.dijkstra(start=0, end=10)
+    # print(path)
+    # graph.dijkstra_draw(path)
+    # print(bfs_sequence)
     # graph.draw(dfs_sequence)
     # graph.draw_by_one_step()
     # graph.add_comment(0)
@@ -15,7 +30,7 @@ if __name__ == '__main__':
 
     # path, length = graph.dijkstra(0, 10)
     # print(path, length)
-    graph.draw(graph.bfs(0))
+    # graph.draw(graph.bfs(0))
     # graph.draw(bfs_sequence)
     # for vertex in dfs_sequence:
     #     graph.draw_edge(vertex.get_vertex_id())
