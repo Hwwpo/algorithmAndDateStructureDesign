@@ -52,5 +52,5 @@ if __name__ == '__main__':
     # graph.draw_edge(0, 'w')
     # graph.add_comment(0)
     # graph.add_comment(displayed_point)
-    hold_on()
+    # hold_on()
     pass

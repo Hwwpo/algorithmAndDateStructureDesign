@@ -2,9 +2,10 @@ from collections import deque
 from edge import Edge
 from face import Face
 from mesh import Mesh
-import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from vertex import Vertex
+import matplotlib.pyplot as plt
+import time
 # 逐步画图帧数
 FPS = 300
 # 坐标轴展示设置
@@ -46,40 +47,23 @@ class Graph(Mesh):
         self.__net_init__()
         self.find_all_first_neighbors()
 
-    def draw_by_steps(self, faces: list) -> None:
+    def get_faces_seq(self, vertices: list) -> list:
         """
-        根据面的顺序逐步画图
-        :param faces: 面的集合
-        :return: None
-        """
-        faces_portion = []
-        for index in range(len(faces)):
-            faces_portion.append(faces[index].location)
-            if index % FPS == 0:
-                self.add_face(faces_portion, edge_color='g')
-                faces_portion = []
-                plt.pause(0.0001)
-        self.add_face(faces_portion, edge_color='g')
-
-    def draw(self, vertices: list) -> None:
-        """
-        根据所给的点的顺序绘图
+        根据所给的点的顺序得到面的顺序
         :param vertices: 顶点数组
-        :return: None
+        :return: 返回绘制的面的顺序
         """
         # 使用字典判断重复边
-        appended = {}
+        appended = [False] * self.faces_count
         # 存储生成的面的集合
         faces = []
         for vertex in vertices:
             related_face = vertex.related_faces
             for face in related_face:
-                try:
-                    appended[face.face_id]
-                except:
+                if not appended[face.face_id]:
                     faces.append(face)
                     appended[face.face_id] = True
-        self.draw_by_steps(faces)
+        return faces
 
     def add_face(self, faces: list, edge_color: str, face_color='b', alpha=1, line_width=0.5, z_order=1) -> None:
         """
