@@ -82,6 +82,8 @@ class Graph(Mesh):
         """
         faces_location = [face.location for face in self.faces]
         self.add_face(faces_location, edge_color='g')
+        # xs, ys, zs = zip(*[vertex.axis for vertex in self.vertices])
+        # self.ax.scatter(xs, ys, zs, color='b')
 
     def draw_neighbors(self, vertex_id: int) -> None:
         """
@@ -194,7 +196,7 @@ class Graph(Mesh):
         """
         self.draw_by_one_step()
         for index in range(len(path) - 1):
-            print(f"beg:{path[index]}, end:{path[index + 1]}")
+            # print(f"beg:{path[index]}, end:{path[index + 1]}")
             self.draw_edge(beg=self.get_vertex(path[index]), end=self.get_vertex(path[index + 1]))
         self.mark_point(path[0], 'beg')
         self.mark_point(path[-1], 'end')
