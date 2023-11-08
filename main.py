@@ -1,8 +1,6 @@
 import sys
 
-from mesh import Mesh
-from graph import Graph, hold_on
-from mainwindow import MainWindow
+from UI.mainwindow import MainWindow
 from PyQt5.QtWidgets import QApplication
 
 if __name__ == '__main__':

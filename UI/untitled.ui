@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>812</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="toolTip">
+   <string/>
+  </property>
+  <property name="toolTipDuration">
+   <number>-1</number>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="4,1,1">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="openFileButton">
+          <property name="toolTip">
+           <string>点击以打开文件</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>1500</number>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: gray;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>打开文件</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="graph_show_button">
+          <property name="toolTip">
+           <string>点击以显示图形</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>1500</number>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: gray;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>显示图形</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="graph_show_neighbors_button">
+          <property name="toolTip">
+           <string>输入一个点，显示该点的第一、第二邻接点</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>1500</number>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: gray;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>显示邻接点</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="dijkstra_button">
+          <property name="toolTip">
+           <string>输入两个点，计算并显示两点的测地距离和具体路径</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>1500</number>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: gray;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>计算测地距离</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="dfs_button">
+          <property name="toolTip">
+           <string>选择一个点并以深度优先绘制图形</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>1500</number>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: gray;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>DFS</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="bfs_button">
+          <property name="toolTip">
+           <string>选择一个点并以宽度优先绘制图形</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>1500</number>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: gray;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>BFS</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="MPLWidget" name="mplwidget" native="true"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="info_board">
+      <property name="autoFormatting">
+       <set>QTextEdit::AutoNone</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QProgressBar" name="progress_bar">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="textDirection">
+       <enum>QProgressBar::TopToBottom</enum>
+      </property>
+      <property name="format">
+       <string>%v/%m</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>812</width>
+     <height>36</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MPLWidget</class>
+   <extends>QWidget</extends>
+   <header>mplwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

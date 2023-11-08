@@ -10,13 +10,6 @@ class Face:
         for i in range(self.n):
             self.location.append(self.related_vertices[i].axis)
 
-    # 可以删了（？
-    def set_vertices(self, related_vertices):
-        self.related_vertices = related_vertices
-
-    def get_vertices_ids(self):
-        return [vertex.vertex_id for vertex in self.related_vertices]
-
     def __str__(self):
         return f"Face's id: {self.face_id}\n" \
               f"Face's location: {self.location}\n" \

@@ -2,9 +2,9 @@ from typing import Tuple, Any
 
 import networkx as nx
 from itertools import combinations
-from vertex import Vertex
-from edge import Edge
-from face import Face
+from core.vertex import Vertex
+from core.edge import Edge
+from core.face import Face
 
 
 class Mesh:

@@ -1,25 +1,16 @@
 from collections import deque
-from edge import Edge
-from face import Face
-from mesh import Mesh
+from core.edge import Edge
+from core.face import Face
+from core.mesh import Mesh
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from vertex import Vertex
+from core.vertex import Vertex
 import matplotlib.pyplot as plt
-import time
 # 逐步画图帧数
 FPS = 300
 # 坐标轴展示设置
 AXIS_SHOW = 'off'
 FIRST_NEIGHBOR_COLOR = 'r'
 SECOND_NEIGHBOR_COLOR = 'y'
-
-
-def hold_on():
-    """
-    图像展示，hold_on之后不允许进行图像的修改
-    :return: None
-    """
-    plt.show()
 
 
 class Graph(Mesh):
@@ -92,19 +83,6 @@ class Graph(Mesh):
         faces_location = [face.location for face in self.faces]
         self.add_face(faces_location, edge_color='g')
 
-    # 已使用直接画边的方式画邻接点
-    # def draw_adjacent_face(self, point, color='r', z_order=1):
-    #     vertex = self.get_vertex(vertex_id=point)
-    #     print(vertex)
-    #     faces = [face.location for face in vertex.related_faces]
-    #     print(faces)
-    #     # face_index = self.vertices_index[point]
-    #     # # debugging
-    #     # print(face_index)
-    #     # faces = [self.faces[index] for index in face_index]
-    #     self.add_face(faces, edge_color=color, alpha=1, face_color='g', z_order=z_order)
-    #     pass
-
     def draw_neighbors(self, vertex_id: int) -> None:
         """
         绘制出指定点的第一邻接点和第二邻接点，使用不同颜色标注
@@ -120,16 +98,6 @@ class Graph(Mesh):
                 if second_neighbor in vertex.get_second_neighbors():
                     self.draw_edge(beg=first_neighbor, end=second_neighbor, color=SECOND_NEIGHBOR_COLOR)
         self.draw_by_one_step()
-        # print(vertex)
-        # for neighbor in first_neighbors:
-        #     self.draw_adjacent_face(neighbor.get_vertex_id(), z_order=10)
-
-    # 高亮一个点，有bug，待修复
-    # def highlight_point(self, vertex_id: int, color: str):
-    #     vertex = self.vertices[vertex_id]
-    #     xs, ys, zs = vertex.axis
-    #     print(xs, ys, zs)
-    #     self.ax.scatter(xs, ys, zs, color=color, zorder=11)
 
     def mark_point(self, vertex_id: int, text=None, color='y') -> None:
         """
