@@ -1,42 +1,46 @@
-from copy import deepcopy
-
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QMessageBox, QGraphicsDropShadowEffect
 from UI.ui_mainwindow import Ui_MainWindow
-from PyQt5.QtCore import QCoreApplication, QDateTime, QTimer
+from PyQt5.QtCore import QCoreApplication, QDateTime, Qt
+
+
+def refresh():
+    QCoreApplication.processEvents()
+
+
+def create_shadow(blur_radius=0.3, x_offset=0.3, y_offset=0.6):
+    shadow = QGraphicsDropShadowEffect()
+    shadow.setBlurRadius(blur_radius)
+    shadow.setXOffset(x_offset)
+    shadow.setYOffset(y_offset)
+    return shadow
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        mplwidget_border_shadow = QGraphicsDropShadowEffect()
-        mplwidget_border_shadow.setBlurRadius(0.3)
-        mplwidget_border_shadow.setXOffset(0.3)
-        mplwidget_border_shadow.setYOffset(0.6)
-        button_border_shadow = QGraphicsDropShadowEffect()
-        button_border_shadow.setBlurRadius(0.3)
-        button_border_shadow.setXOffset(0.3)
-        button_border_shadow.setYOffset(0.6)
-        info_board_shadow = QGraphicsDropShadowEffect()
-        info_board_shadow.setBlurRadius(0.3)
-        info_board_shadow.setXOffset(0.3)
-        info_board_shadow.setYOffset(0.6)
         self._dots = 0
         self._is_on_dfs = False
         self._is_on_bfs = False
         self._text_history = ''
         self.setupUi(self)
         self.setStyleSheet("background-color: white;")
+        self._welcome()
         self.openFileButton.clicked.connect(self.read_file)
         self.graph_show_button.clicked.connect(self.show_graph)
         self.graph_show_neighbors_button.clicked.connect(self.show_neighbors)
         self.dfs_button.clicked.connect(self.show_dfs)
         self.bfs_button.clicked.connect(self.show_bfs)
+        self.overall_view_button.clicked.connect(self.mplwidget.over_all_view)
         self.mplwidget.timer.timeout.connect(self.process)
         self.mplwidget.timer.timeout.connect(self._update_text)
         self.dijkstra_button.clicked.connect(self.show_dijkstra)
-        self.mplwidget_border.setGraphicsEffect(mplwidget_border_shadow)
-        self.button_border.setGraphicsEffect(button_border_shadow)
-        self.info_board_border.setGraphicsEffect(button_border_shadow)
+        self.info_board.verticalScrollBar().valueChanged.connect(self.check_scrollbar_visibility)
+        self.mplwidget_border.setGraphicsEffect(create_shadow())
+        self.button_border.setGraphicsEffect(create_shadow())
+        self.info_board_border.setGraphicsEffect(create_shadow())
+        self.openFileButton.setGraphicsEffect(create_shadow())
+        self.overall_view_button.setGraphicsEffect(create_shadow())
+        self.info_board.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # self.info_board.ensureCursorVisible()
 
     def read_file(self):
@@ -49,6 +53,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # DONE: 可以提示读文件成功
             self.clear()
             try:
+                self.mplwidget.graph.clear_data()
                 self.mplwidget.graph.read_file(file_name)
             except:
                 QMessageBox.warning(self, 'Invalid File', '文件损坏！')
@@ -63,6 +68,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mplwidget.clear()
         if self.judge_file():
             self.clear()
+            self.mplwidget.over_all_view()
             self.mplwidget.graph.draw_by_one_step()
             self.mplwidget.draw()
             self.add_text2info_board('绘制完毕！拖动以查看细节！')
@@ -76,12 +82,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def input_vertex_id(self, text):
         vertex_id = -1
         ok = False
-        while vertex_id < 0 or vertex_id > 7690:
+        while vertex_id < 0 or vertex_id > self.mplwidget.graph.vertices_count - 1:
             vertex_id, ok = QInputDialog.getText(self, '', text)
             if not ok:
                 return vertex_id, ok
 
-            if vertex_id.isdigit() and 0 <= int(vertex_id) <= 7690:
+            if vertex_id.isdigit() and 0 <= int(vertex_id) <= self.mplwidget.graph.vertices_count - 1:
                 vertex_id = int(vertex_id)
             else:
                 QMessageBox.warning(self, 'Warning', f'请输入一个在（0-'
@@ -98,6 +104,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.add_text2info_board(f"已选择的点:{vertex_id}")
                 self.clear()
                 self.mplwidget.graph.draw_neighbors(int(vertex_id))
+                # self.mplwidget.over_all_view()
                 self.mplwidget.draw()
                 self.add_text2info_board(f"已显示{vertex_id}号点的第一、第二邻接点！")
                 self.progress_bar.setValue(self.progress_bar.maximum())
@@ -115,19 +122,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                         f'{self.mplwidget.graph.vertices_count - 1}）：')
             if ok1:
                 vertex_id2, ok2 = self.input_vertex_id(text=f'请输入要计算的测地距离的终点（0-'
-                                                            f'{self.mplwidget.graph.vertices_count}）：')
+                                                            f'{self.mplwidget.graph.vertices_count - 1}）：')
             if ok1 and ok2:
                 self.clear()
                 self.add_text2info_board(f"已选择的点: {vertex_id1} --> {vertex_id2}")
                 self.progress_bar.setValue(40)
-                self.refresh()
+                refresh()
                 dist, path = self.mplwidget.graph.dijkstra(start=vertex_id1, end=vertex_id2)
                 self.progress_bar.setValue(50)
-                self.refresh()
+                refresh()
+                self.mplwidget.graph.ax.set_box_aspect([1, 1, 1], zoom=1.5)
                 self.mplwidget.graph.dijkstra_draw(path)
                 self.progress_bar.setValue(80)
-                self.refresh()
+                refresh()
                 self.add_text2info_board(f"测地距离：{dist}\n具体路径：" + ' -> '.join(str(i) for i in path))
+                # print(dist, type(dist))
+                if dist == float('inf'):
+                    self.mplwidget.over_all_view()
                 self.mplwidget.draw()
                 self.progress_bar.setValue(100)
 
@@ -143,8 +154,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             vertex_id, ok = self.input_vertex_id(text=f"请输入DFS的起点（0-{self.mplwidget.graph.vertices_count - 1}）：")
             if ok:
                 dfs_seq = self.mplwidget.graph.iterative_dfs(vertex_id)
+                if len(dfs_seq) != self.mplwidget.graph.vertices_count:
+                    self.add_text2info_board(f"该图非连通，无法DFS")
+                    QMessageBox.warning(self, 'Warning', f'该图非连通，无法DFS')
+                    return
                 self.clear()
+                self.mplwidget.over_all_view()
                 faces_seqs = self.mplwidget.graph.get_faces_seq(dfs_seq)
+                # print(faces_seqs)
                 self._is_on_dfs = True
                 self.add_text2info_board(f"用户选择的DFS起点：{vertex_id}")
                 self.mplwidget.draw_by_steps(faces_seqs)
@@ -156,10 +173,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def show_bfs(self):
         if self.judge_file():
-            vertex_id, ok = self.input_vertex_id(text=f"请输入BFS的起点（0-{self.mplwidget.graph.vertices_count}）：")
+            vertex_id, ok = self.input_vertex_id(text=f"请输入BFS的起点（0-{self.mplwidget.graph.vertices_count - 1}）：")
             if ok:
                 bfs_seq = self.mplwidget.graph.bfs(vertex_id)
+                if len(bfs_seq) != self.mplwidget.graph.vertices_count:
+                    self.add_text2info_board(f"该图非连通，无法BFS")
+                    QMessageBox.warning(self, 'Warning', f'该图非连通，无法BFS')
+                    return
                 self.clear()
+                self.mplwidget.over_all_view()
                 faces_seqs = self.mplwidget.graph.get_faces_seq(bfs_seq)
                 self._is_on_bfs = True
                 self.add_text2info_board(f"用户选择的BFS起点：{vertex_id}")
@@ -181,9 +203,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self._is_on_bfs:
                 self.add_text2info_board(f"BFS绘制过程完成！")
                 self._is_on_bfs = False
-        self.progress_bar.setValue(int(self.mplwidget.faces_index / len(self.mplwidget.faces) * 100))
+        self.progress_bar.setValue(int(
+            self.mplwidget.faces_index / len(self.mplwidget.faces) * self.progress_bar.maximum()
+        ))
+
+    def _welcome(self):
+        welcome_text = """欢迎使用三维网格模型几何特性分析程序！
+这个程序可以帮助您分析三维物体模型的特性，包括邻接点查找、测地距离计算、图结构遍历和三维图形显示。
+请导入您的三维物体模型文件（如Bunny.off），然后开始探索其几何特性。如果需要帮助，请查看帮助文档或按下相应的按钮，我们随时为您提供支持。
+祝您使用愉快！
+"""
+        self.add_text2info_board(text=welcome_text, with_time=False)
 
     # TODO: 终端模式，显示用户输入内容
+
     def add_text2info_board(self, text, with_time=True):
         if with_time:
             datetime = QDateTime().currentDateTime()
@@ -218,14 +251,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.info_board.setText(self._text_history + f"\n正在计算最短路径" + '.' * self._dots)
             self.info_board.verticalScrollBar().setValue(self.info_board.verticalScrollBar().maximum())
 
-    def refresh(self):
-        QCoreApplication.processEvents()
-
-    # TODO: 创建shadow，然后info_board边框显示
-
-    def create_shadow(blur_radius, x_offset, y_offset):
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(blur_radius)
-        shadow.setXOffset(x_offset)
-        shadow.setYOffset(y_offset)
-        return shadow
+    def check_scrollbar_visibility(self):
+        is_content_overflowing = self.info_board.verticalScrollBar().maximum() > self.info_board.height()
+        # 根据内容是否超出范围来设置滚动条的显示策略
+        if is_content_overflowing:
+            self.info_board.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        else:
+            self.info_board.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)

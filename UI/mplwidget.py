@@ -3,7 +3,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import QSizePolicy
 from core.graph import Graph, AXIS_SHOW
 from PyQt5.QtCore import QTimer
-FPS = 100
 
 
 class MPLWidget(FigureCanvas):
@@ -17,17 +16,27 @@ class MPLWidget(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.draw_portions)
+        self.setFixedSize(width * dpi, height * dpi)
+        self.draw()
 
     def clear(self):
         self.graph.ax.clear()
         plt.axis(AXIS_SHOW)
-        self.graph.ax.set_box_aspect([1, 1, 1])
         self.timer.stop()
         self.draw()
 
+    def over_all_view(self):
+        self.graph.ax.set_xlim([self.graph.min_lim, self.graph.max_lim])
+        self.graph.ax.set_ylim([self.graph.min_lim, self.graph.max_lim])
+        self.graph.ax.set_zlim([self.graph.min_lim, self.graph.max_lim])
+        self.draw()
+
     def draw_by_steps(self, faces: list):
-        self.timer.setInterval(100)
-        self.faces = [faces[i:i+FPS] for i in range(0, len(faces), FPS)]
+        # 20 = len * interval * 1000
+        fps = int(len(faces) / 150)
+        self.faces = [faces[i:i + fps] for i in range(0, len(faces), fps)]
+        self.timer.setInterval(int(2000 / len(self.faces)))
+        # print(self.faces)
         self.timer.start()
         self.faces_index = 0
 
@@ -37,6 +46,7 @@ class MPLWidget(FigureCanvas):
         :param faces: 面的集合
         :return: None
         """
+        # print(self.timer.isActive())
         if self.faces_index < len(self.faces):
             location = [face.location for face in self.faces[self.faces_index]]
             self.graph.add_face(location, edge_color='g')

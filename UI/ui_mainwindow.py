@@ -136,6 +136,21 @@ class Ui_MainWindow(object):
         self.mplwidget_border.setObjectName("mplwidget_border")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.mplwidget_border)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.overall_view_button = QtWidgets.QPushButton(self.mplwidget_border)
+        self.overall_view_button.setStyleSheet("#overall_view_button {\n"
+"            background-color: white; \n"
+"        border: 0.5px solid rgb(180, 180, 180);\n"
+"            color: black;\n"
+"        border-radius: 4px\n"
+"    }\n"
+"#overall_view_button:hover { \n"
+"        background-color: lightgray; \n"
+"    }\n"
+"#overall_view_button:pressed{\n"
+"        background-color:gray;\n"
+"    }")
+        self.overall_view_button.setObjectName("overall_view_button")
+        self.verticalLayout_4.addWidget(self.overall_view_button)
         self.mplwidget = MPLWidget(self.mplwidget_border)
         self.mplwidget.setStyleSheet("QWidget, QLabel {\n"
 "        border-radius: 4px;\n"
@@ -156,7 +171,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.info_board_border)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.info_board = QtWidgets.QTextEdit(self.info_board_border)
-        self.info_board.setStyleSheet("")
+        self.info_board.setStyleSheet("#info_board { \n"
+"        border: none;\n"
+"}\n"
+"")
         self.info_board.setAutoFormatting(QtWidgets.QTextEdit.AutoNone)
         self.info_board.setReadOnly(True)
         self.info_board.setObjectName("info_board")
@@ -169,8 +187,8 @@ class Ui_MainWindow(object):
         self.progress_bar.setTextDirection(QtWidgets.QProgressBar.TopToBottom)
         self.progress_bar.setObjectName("progress_bar")
         self.verticalLayout_2.addWidget(self.progress_bar)
-        self.verticalLayout_2.setStretch(0, 4)
-        self.verticalLayout_2.setStretch(1, 1)
+        self.verticalLayout_2.setStretch(0, 7)
+        self.verticalLayout_2.setStretch(1, 4)
         self.verticalLayout_2.setStretch(2, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -199,5 +217,7 @@ class Ui_MainWindow(object):
         self.dfs_button.setText(_translate("MainWindow", "DFS"))
         self.bfs_button.setToolTip(_translate("MainWindow", "选择一个点并以宽度优先绘制图形"))
         self.bfs_button.setText(_translate("MainWindow", "BFS"))
+        self.overall_view_button.setText(_translate("MainWindow", "点击恢复全局视角"))
         self.progress_bar.setFormat(_translate("MainWindow", "%v/%m"))
 from UI.mplwidget import MPLWidget
+

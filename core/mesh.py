@@ -22,6 +22,8 @@ class Mesh:
         self.faces = []
         self.vertices = []
         self.edges = []
+        self.max_lim = -1e6
+        self.min_lim = 1e6
         self.net = nx.Graph()
 
     def __net_init__(self):
@@ -89,28 +91,64 @@ class Mesh:
         :return: None
         """
         # 打开off文件
+
         with open(file_path, 'r') as file:
             lines = file.readlines()
-            # 计算顶点、边的数量
-            vertices_count, faces_count, lines_count = map(int, lines[1].split())
-            self.vertices_count = vertices_count
-            self.faces_count = faces_count
-            # 计算self.vertices
             vertex_id = 0
-            for line in lines[2:2 + vertices_count]:
-                new_vertex = Vertex(vertex_id)
-                new_vertex.set_axis(list(map(float, line.split())))
-                self.vertices.append(new_vertex)
-                vertex_id += 1
             face_id = 0
-            for line in lines[2 + vertices_count:]:
-                index = list(map(int, line.split()))
-                related_vertices = [self.vertices[i] for i in index[1:]]
-                new_face = Face(index[0], face_id, related_vertices)
-                self.faces.append(new_face)
-                for vertex in self.faces[face_id].related_vertices:
-                    self.vertices[vertex.vertex_id].related_faces.append(new_face)
-                face_id += 1
+            vertices_count = 0
+            faces_count = 0
+            is_vertex_section = False
+            for line in lines:
+                # 如果是以 "#" 开头的行，则跳过，将其视为注释
+                if line.startswith('#'):
+                    continue
+                if line.startswith('OFF'):
+                    continue
+                if len(line) == 0:
+                    continue
+                if not is_vertex_section:
+                    vertices_count, faces_count, _ = map(int, line.split())
+                    # 计算顶点、边的数量
+                    self.vertices_count = vertices_count
+                    self.faces_count = faces_count
+                    is_vertex_section = True
+                    # 计算self.vertices
+                else:
+                    if vertices_count > 0:
+                        new_vertex = Vertex(vertex_id)
+                        new_vertex.set_axis(list(map(float, line.split())))
+                        max_lim = max(new_vertex.axis)
+                        min_lim = min(new_vertex.axis)
+                        if self.max_lim < max_lim:
+                            self.max_lim = max_lim
+                        if self.min_lim > min_lim:
+                            self.min_lim = min_lim
+                        self.vertices.append(new_vertex)
+                        vertex_id += 1
+                        vertices_count -= 1
+                    elif faces_count > 0:
+                        index = list(map(int, line.split()))
+                        related_vertices = [self.vertices[i] for i in index[1:]]
+                        new_face = Face(index[0], face_id, related_vertices)
+                        self.faces.append(new_face)
+                        for vertex in self.faces[face_id].related_vertices:
+                            self.vertices[vertex.vertex_id].related_faces.append(new_face)
+                        face_id += 1
+                        faces_count -= 1
+            # for line in lines[2:2 + vertices_count]:
+            #     new_vertex = Vertex(vertex_id)
+            #     new_vertex.set_axis(list(map(float, line.split())))
+            #     self.vertices.append(new_vertex)
+            #     vertex_id += 1
+            # for line in lines[2 + vertices_count:]:
+            #     index = list(map(int, line.split()))
+            #     related_vertices = [self.vertices[i] for i in index[1:]]
+            #     new_face = Face(index[0], face_id, related_vertices)
+            #     self.faces.append(new_face)
+            #     for vertex in self.faces[face_id].related_vertices:
+            #         self.vertices[vertex.vertex_id].related_faces.append(new_face)
+            #     face_id += 1
 
     def find_first_neighbors(self, vertex_id):
         for face in self.vertices[vertex_id].related_faces:

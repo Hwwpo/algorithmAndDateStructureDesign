@@ -1,4 +1,7 @@
 from collections import deque
+
+import networkx as nx
+
 from core.edge import Edge
 from core.face import Face
 from core.mesh import Mesh
@@ -21,11 +24,22 @@ class Graph(Mesh):
         super().__init__()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
+        self.ax.set_box_aspect([1, 1, 1])
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
         plt.axis(AXIS_SHOW)
         self.ax.view_init(elev=-87, azim=-95)
+
+    def clear_data(self):
+        self.vertices_count = 0
+        self.faces_count = 0
+        self.faces = []
+        self.vertices = []
+        self.edges = []
+        self.max_lim = -1e6
+        self.min_lim = 1e6
+        self.net = nx.Graph()
 
     def read_file(self, file_path: str) -> None:
         """
@@ -37,6 +51,7 @@ class Graph(Mesh):
         self.__edges_init__()
         self.__net_init__()
         self.find_all_first_neighbors()
+        # print(self.faces_count)
 
     def get_faces_seq(self, vertices: list) -> list:
         """
@@ -91,6 +106,7 @@ class Graph(Mesh):
         :param vertex_id: 顶点的id
         :return: None
         """
+        self.mark_point(vertex_id=vertex_id, text='point')
         vertex = self.vertices[vertex_id]
         # self.highlight_point(vertex_id, color='w')
         self.find_second_neighbors(vertex_id)
@@ -198,5 +214,6 @@ class Graph(Mesh):
         for index in range(len(path) - 1):
             # print(f"beg:{path[index]}, end:{path[index + 1]}")
             self.draw_edge(beg=self.get_vertex(path[index]), end=self.get_vertex(path[index + 1]))
-        self.mark_point(path[0], 'beg')
-        self.mark_point(path[-1], 'end')
+        if path:
+            self.mark_point(path[0], 'beg')
+            self.mark_point(path[-1], 'end')
