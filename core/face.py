@@ -2,7 +2,14 @@ import numpy as np
 
 
 class Face:
-    def __init__(self, n, face_id, related_vertices):
+    def __init__(self, n: int, face_id: int, related_vertices: list):
+        """
+        面类\n
+        self.location: 面的坐标
+        :param n: 面的顶点数
+        :param face_id: 面分配的id
+        :param related_vertices: 面的顶点
+        """
         self.n = n
         self.face_id = face_id
         self.related_vertices = related_vertices

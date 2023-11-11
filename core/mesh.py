@@ -15,6 +15,8 @@ class Mesh:
         self.vertices: 返回vertex数组，为顶点集合\n
         self.faces: 返回face数组，为面集合\n
         self.edges: 返回edge数组，为边集合\n
+        self.max_lim: 坐标的最大值
+        self.min_lim: 坐标的最小值
         self.net: 存储图结构
         """
         self.vertices_count = 0
@@ -26,13 +28,44 @@ class Mesh:
         self.min_lim = 1e6
         self.net = nx.Graph()
 
+    def __edges_init__(self):
+        """
+        边初始化函数
+        :return: None
+        """
+        # 使用字典判重
+        dictionary = {}
+
+        # 遍历每一个面
+        for face in self.faces:
+            vertex_ids = [vertex.vertex_id for vertex in face.related_vertices]
+
+            # 将每个面的点两两排列组合
+            combines = list(combinations(vertex_ids, 2))
+
+            # 遍历组合
+            for combine in combines:
+                vertex1 = self.get_vertex(combine[0])
+                vertex2 = self.get_vertex(combine[1])
+                vertices = (vertex1, vertex2)
+
+                # 判重，(1, 2)和(2, 1)属于同一条边，并且多个面可能共用一条边
+                try:
+                    a = dictionary[vertices]
+                    continue
+                except:
+                    dictionary[vertices] = True
+                    dictionary[vertices[::-1]] = True
+                    # 无重复则添加新边
+                    new_edge = Edge((vertex1, vertex2))
+                    self.edges.append(new_edge)
+
     def __net_init__(self):
         """
         图网络的初始化函数
         :return: None
         """
         frame = [edge.nx_format for edge in self.edges]
-        # print(len(frame))
         self.net.add_weighted_edges_from(frame)
 
     def dijkstra(self, start: int, end: int) -> tuple[Any, Any]:
@@ -42,9 +75,6 @@ class Mesh:
         :param end: 结束节点的vertex_id
         :return: 返回最短距离和最短路径
         """
-        # debugging
-        # min_path = nx.dijkstra_path(self.net, source=beg, target=end)
-        # len_min_path = nx.dijkstra_path_length(self.net, source=beg, target=end)
         # 创建一个字典来保存每个节点的最短距离
         shortest_distances = {node: float('infinity') for node in self.net.nodes}
         shortest_distances[start] = 0
@@ -86,7 +116,7 @@ class Mesh:
 
     def read_file(self, file_path: str):
         """
-        读文件，初始化attributions
+        读文件，初始化属性
         :param file_path: 文件路径
         :return: None
         """
@@ -94,61 +124,74 @@ class Mesh:
 
         with open(file_path, 'r') as file:
             lines = file.readlines()
+
+            # 从0开始分配ID
             vertex_id = 0
             face_id = 0
             vertices_count = 0
             faces_count = 0
             is_vertex_section = False
             for line in lines:
+
                 # 如果是以 "#" 开头的行，则跳过，将其视为注释
                 if line.startswith('#'):
                     continue
+
                 if line.startswith('OFF'):
                     continue
+
+                # 空行跳过
                 if len(line) == 0:
                     continue
+
                 if not is_vertex_section:
+
+                    # 获得顶点、边的数量
                     vertices_count, faces_count, _ = map(int, line.split())
-                    # 计算顶点、边的数量
                     self.vertices_count = vertices_count
                     self.faces_count = faces_count
                     is_vertex_section = True
-                    # 计算self.vertices
                 else:
+                    # 还在添加顶点
                     if vertices_count > 0:
+
+                        # 新建顶点
                         new_vertex = Vertex(vertex_id)
+
+                        # 计算坐标
                         new_vertex.set_axis(list(map(float, line.split())))
+
+                        # 计算3D图的坐标范围，切换全局视角时需要使用
                         max_lim = max(new_vertex.axis)
                         min_lim = min(new_vertex.axis)
                         if self.max_lim < max_lim:
                             self.max_lim = max_lim
                         if self.min_lim > min_lim:
                             self.min_lim = min_lim
+
+                        # 添加新顶点
                         self.vertices.append(new_vertex)
                         vertex_id += 1
                         vertices_count -= 1
+
+                    # 顶点添加结束，添加面
                     elif faces_count > 0:
+
+                        # 计算相关参数
                         index = list(map(int, line.split()))
                         related_vertices = [self.vertices[i] for i in index[1:]]
+
+                        # 添加新面
                         new_face = Face(index[0], face_id, related_vertices)
                         self.faces.append(new_face)
+
+                        # 将面的属性也添加到其关联的点中
                         for vertex in self.faces[face_id].related_vertices:
                             self.vertices[vertex.vertex_id].related_faces.append(new_face)
+
+                        # 下一个面
                         face_id += 1
                         faces_count -= 1
-            # for line in lines[2:2 + vertices_count]:
-            #     new_vertex = Vertex(vertex_id)
-            #     new_vertex.set_axis(list(map(float, line.split())))
-            #     self.vertices.append(new_vertex)
-            #     vertex_id += 1
-            # for line in lines[2 + vertices_count:]:
-            #     index = list(map(int, line.split()))
-            #     related_vertices = [self.vertices[i] for i in index[1:]]
-            #     new_face = Face(index[0], face_id, related_vertices)
-            #     self.faces.append(new_face)
-            #     for vertex in self.faces[face_id].related_vertices:
-            #         self.vertices[vertex.vertex_id].related_faces.append(new_face)
-            #     face_id += 1
 
     def find_first_neighbors(self, vertex_id):
         for face in self.vertices[vertex_id].related_faces:
@@ -169,8 +212,8 @@ class Mesh:
                 last_vertex = face.related_vertices[(i + face.n - 1) % face.n]
                 curr_vertex.add_first_neighbor(next_vertex)
                 curr_vertex.add_first_neighbor(last_vertex)
-
     # 感觉时间复杂度有点高
+
     def find_second_neighbors(self, vertex_id):
         if not self.vertices[vertex_id].get_first_neighbors():
             self.find_first_neighbors(vertex_id)
@@ -184,35 +227,10 @@ class Mesh:
                 self.vertices[vertex_id].add_second_neighbor(neighbor)
 
     def get_vertex(self, vertex_id):
+        """
+        通过id获得对应的vertex类
+        :param vertex_id:
+        :return:
+        """
         return self.vertices[vertex_id]
-
-    def __edges_init__(self):
-        """
-        边初始化函数
-        :return: None
-        """
-        # 使用字典判重
-        dictionary = {}
-        # 遍历每一个面
-        for face in self.faces:
-            vertex_ids = [vertex.vertex_id for vertex in face.related_vertices]
-            # 将每个面的点两两排列组合
-            combines = list(combinations(vertex_ids, 2))
-            # 遍历组合
-            for combine in combines:
-                vertex1 = self.get_vertex(combine[0])
-                vertex2 = self.get_vertex(combine[1])
-                vertices = (vertex1, vertex2)
-                # 判重，(1, 2)和(2, 1)属于同一条边，并且多个面可能共用一条边
-                try:
-                    a = dictionary[vertices]
-                    continue
-                except:
-                    dictionary[vertices] = True
-                    dictionary[vertices[::-1]] = True
-                    # 无重复则添加新边
-                    new_edge = Edge((vertex1, vertex2))
-                    self.edges.append(new_edge)
-                # print(self.edges)
-                # time.sleep(10)
 

@@ -32,6 +32,10 @@ class Graph(Mesh):
         self.ax.view_init(elev=-87, azim=-95)
 
     def clear_data(self):
+        """
+        清空图的内容
+        :return:
+        """
         self.vertices_count = 0
         self.faces_count = 0
         self.faces = []
