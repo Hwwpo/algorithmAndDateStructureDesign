@@ -22,8 +22,10 @@ class MPLWidget(FigureCanvas):
                                    QSizePolicy.Expanding,
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+
         # 创建一个定时器，用于分步画图
         self.timer = QTimer(self)
+
         # 定时器每计时一定时间就画一部分图
         self.timer.timeout.connect(self.draw_portions)
         self.setFixedSize(width * dpi, height * dpi)
@@ -34,11 +36,15 @@ class MPLWidget(FigureCanvas):
         清空窗口上的图形
         :return:
         """
+        # 清空图形的所有内容
         self.graph.ax.clear()
+
         # 清除完后隐藏坐标轴
         plt.axis(AXIS_SHOW)
+
         # 计时器停止计时
         self.timer.stop()
+
         # 刷新界面
         self.draw()
 
@@ -60,12 +66,16 @@ class MPLWidget(FigureCanvas):
         """
         # 计算帧数，即每画的一部分中，有多少个面
         fps = int(len(faces) / 150)
+
         # 按照计算出来的帧数将faces划分
         self.faces = [faces[i:i + fps] for i in range(0, len(faces), fps)]
+
         # 设置计时器间隔，即每过多长时间画一笔
         self.timer.setInterval(int(2000 / len(self.faces)))
+
         # 开始计时/绘画
         self.timer.start()
+
         # 从第0个划分开始
         self.faces_index = 0
 
@@ -78,7 +88,9 @@ class MPLWidget(FigureCanvas):
             # 获取当前帧的面的位置信息
             location = [face.location for face in self.faces[self.faces_index]]
             self.graph.add_face(location, edge_color='g')
+
             # 刷新界面，使之显示
             self.draw()
+
             # 继续下一个划分
             self.faces_index += 1
